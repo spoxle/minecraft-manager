@@ -53,5 +53,5 @@ pub struct Hit {
     pub gallery: Vec<String>,
     #[serde(rename = "featured_gallery")]
     pub featured_gallery: Option<String>,
-    pub color: i64,
+    pub color: Option<i64>,
 }

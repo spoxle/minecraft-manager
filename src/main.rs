@@ -7,16 +7,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .user_agent("minecraft-manager/0.1.0 (me@spoxle.com)")
         .build()?;
 
-    let projects = modrinth::api::search_projects(&client).await;
+    let facets = vec![vec!["project_type:resourcepack".to_string()]];
 
-    match projects {
-        Ok(data) => {
-            let slugs: Vec<String> = data.hits.into_iter().map(|p| p.slug).collect();
-
-            println!("{:#?}", slugs)
+    let projects = match modrinth::api::search_projects(&client, &facets, "downloads", "").await {
+        Ok(projects) => projects
+            .hits
+            .into_iter()
+            .map(|p| p.title)
+            .collect::<Vec<String>>(),
+        Err(e) => {
+            eprintln!("{}", e);
+            Vec::new()
         }
-        Err(e) => eprintln!("{}", e),
-    }
+    };
+
+    println!("{:#?}", projects);
 
     Ok(())
 }
