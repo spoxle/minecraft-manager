@@ -3,23 +3,16 @@ mod modrinth;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = reqwest::Client::builder()
-        .user_agent("minecraft-manager/0.1.0 (me@spoxle.com)")
-        .build()?;
+    let client = modrinth::api::ModrinthClient::new()?;
 
-    let facets = vec![vec!["project_type:resourcepack".to_string()]];
+    let facets = vec![
+        // vec!["project_type:modpack", "project_type:resourcepack"],
+        // vec!["versions:1.21.1", "versions:26.2"],
+    ];
 
-    let projects = match modrinth::api::search_projects(&client, &facets, "downloads", "").await {
-        Ok(projects) => projects
-            .hits
-            .into_iter()
-            .map(|p| p.title)
-            .collect::<Vec<String>>(),
-        Err(e) => {
-            eprintln!("{}", e);
-            Vec::new()
-        }
-    };
+    let projects = client
+        .search_projects("", &facets, "relevance", "0", "20")
+        .await?;
 
     println!("{:#?}", projects);
 
